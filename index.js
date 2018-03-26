@@ -4,8 +4,10 @@ const app = express();
 const showdown = require('showdown'),
       converter = new showdown.Converter();
 
+const googleCloudAPIkey = process.env.GOOGLE_CLOUD_API_KEY;
+
 const Sync = require('sync');
-const googleTranslate = require('google-translate')('   ###   GET FROM GOOGLE CLOUDE https://console.cloud.google.com/apis/credentials');
+const googleTranslate = require('google-translate')(googleCloudAPIkey);
 
 const mustache = require('mustache');
 
@@ -15,23 +17,21 @@ app.get('/', (req, res) => res.send('42'));
 
 
 
-function translatePromise(phrase, from, to) {
+async function translatePromise(phrase, from, to) {
 	return new Promise(function(resolve) {
 		googleTranslate.translate(phrase, from, to, function(err, result) {
-			console.log('resolving ' + result.translatedText);
 			resolve(result.translatedText);	
 		});
 	});
 }
 
-function translateAsync(phrase, from, to) {
-	return translatePromise(phrase, from, to);
-}
-
-
 var hackathon = {
 	translate: async function(phrase, from, to) {
-		return await translateAsync(phrase, from, to);
+		try {
+			let result = await translatePromise(phrase, from, to);
+			return result;
+		} catch (error) {
+		}
 	},
 	count: function(vals) {
 		return vals.length;
@@ -72,14 +72,11 @@ app.post('/tagMarkdown', (req, res) => {
 	res.send(converter.makeHtml(md) + "\n");
 });
 
-app.post('/tagExpression', (req, res) => {
+app.post('/tagExpression', async (req, res) => {
 	let expression = req.body.expression,
 		tags = req.body.tags;
 
-	console.log('NOT USING EVAL: ' + hackathon.translate('Hello', 'en', 'es'));
-
-	let result = eval(expression);
-
+	let result = await eval(expression);
 	res.send(result + "\n");
 });
 
