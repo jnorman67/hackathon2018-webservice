@@ -9,6 +9,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.16.3"
+    "express": "^4.16.3",
+    "google-translate": "^2.1.0",
+    "mustache": "^2.3.0",
+    "showdown": "^1.8.6",
+    "sync": "^0.2.5"
   }
 }
